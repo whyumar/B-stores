@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: "A thoughtfully curated bookstore for curious minds. Find your next favourite read at B-stores.",
   applicationName: "B-stores",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://b-stores.vercel.app"),
+  verification: {
+    google: "s5biJhoW52LA9YwShTOStKPZzJE37sDKkysy_UHDDbg"
+  },
   openGraph: {
     title: "B-stores — Stories worth keeping",
     description: "A thoughtfully curated bookstore for curious minds.",
