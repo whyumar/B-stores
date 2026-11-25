@@ -20,6 +20,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!process.env.DATABASE_URL) return databaseUnavailable();
+  if (!process.env.DATABASE_URL || !process.env.BETTER_AUTH_SECRET) return authUnavailable();
   return handlers.POST(request);
 }
