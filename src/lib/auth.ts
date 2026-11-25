@@ -48,6 +48,15 @@ export const auth = betterAuth({
     })
   ],
   advanced: {
+    database: {
+      // PostgreSQL's Better Auth adapter supports native joins; no ORM relations are needed.
+      joins: true
+    },
+    ipAddress: {
+      // Vercel sets this canonical client-IP header at its edge.
+      // Avoid trusting client-supplied X-Forwarded-For chains.
+      ipAddressHeaders: ["x-real-ip"]
+    },
     useSecureCookies: process.env.NODE_ENV === "production"
   }
 });
