@@ -302,7 +302,7 @@ export function Storefront() {
           <p>For the love of a good story.<br /><em>And the people who read them.</em></p>
           <a href="#discover" className="back-top">BACK TO THE BOOKSHELF ↑</a>
         </div>
-        <div className="footer-bottom"><span>© {new Date().getFullYear()} B-STORES. ALL STORIES RESERVED.</span><span>THOUGHTFULLY CURATED, ALWAYS.</span><span className="footer-made">MADE WITH <Heart size={12} /> FOR READERS</span></div>
+        <div className="footer-bottom"><span>© {new Date().getFullYear()} B-STORES. ALL STORIES RESERVED.</span><nav className="footer-legal-links" aria-label="Legal information"><a href="/privacy">PRIVACY</a><a href="/terms">TERMS &amp; CONDITIONS</a></nav><span>THOUGHTFULLY CURATED, ALWAYS.</span><span className="footer-made">MADE WITH <Heart size={12} /> FOR READERS</span></div>
       </footer>
 
       {cartOpen && (
