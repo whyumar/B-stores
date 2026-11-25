@@ -29,6 +29,7 @@ const trustedOrigins = [
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
+  appName: "B-stores",
   database: pool,
   secret: process.env.BETTER_AUTH_SECRET || "b-stores-build-only-secret-do-not-use-in-production",
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SITE_URL,
@@ -48,6 +49,15 @@ export const auth = betterAuth({
     })
   ],
   advanced: {
+    database: {
+      // PostgreSQL's Better Auth adapter supports native joins; no ORM relations are needed.
+      joins: true
+    },
+    ipAddress: {
+      // Vercel sets this canonical client-IP header at its edge.
+      // Avoid trusting client-supplied X-Forwarded-For chains.
+      ipAddressHeaders: ["x-real-ip"]
+    },
     useSecureCookies: process.env.NODE_ENV === "production"
   }
 });
