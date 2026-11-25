@@ -1,3 +1,4 @@
+import { dash } from "@better-auth/infra";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 
@@ -41,6 +42,11 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24
   },
+  plugins: [
+    dash({
+      apiKey: process.env.BETTER_AUTH_API_KEY
+    })
+  ],
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production"
   }

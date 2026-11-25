@@ -15,6 +15,7 @@
     "auth:generate": "npx auth@latest generate"
   },
   "dependencies": {
+    "@better-auth/infra": "^0.4.31",
     "better-auth": "^1.6.0",
     "lucide-react": "1.73.0",
     "next": "16.4.6",
