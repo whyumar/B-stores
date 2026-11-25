@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const handlers = toNextJsHandler(auth);
 
-function databaseUnavailable() {
+function authUnavailable() {
   return NextResponse.json(
     { message: "Account sign-in is temporarily unavailable. Guest checkout is still available." },
     { status: 503, headers: { "Cache-Control": "no-store" } }
@@ -15,7 +15,7 @@ function databaseUnavailable() {
 }
 
 export async function GET(request: Request) {
-  if (!process.env.DATABASE_URL) return databaseUnavailable();
+  if (!process.env.DATABASE_URL || !process.env.BETTER_AUTH_SECRET) return authUnavailable();
   return handlers.GET(request);
 }
 
