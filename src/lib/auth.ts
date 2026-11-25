@@ -29,6 +29,7 @@ const trustedOrigins = [
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
+  appName: "B-stores",
   database: pool,
   secret: process.env.BETTER_AUTH_SECRET || "b-stores-build-only-secret-do-not-use-in-production",
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SITE_URL,
