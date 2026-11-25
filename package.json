@@ -10,16 +10,21 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "auth:migrate": "npx auth@latest migrate",
+    "auth:generate": "npx auth@latest generate"
   },
   "dependencies": {
+    "better-auth": "^1.6.0",
     "lucide-react": "1.73.0",
     "next": "16.4.6",
+    "pg": "^8.16.3",
     "react": "19.2.9",
     "react-dom": "19.2.9"
   },
   "devDependencies": {
     "@types/node": "22.19.1",
+    "@types/pg": "^8.15.5",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "10.14.0",
