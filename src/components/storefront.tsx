@@ -30,39 +30,47 @@ export function Storefront() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("b-stores-cart");
-      if (saved) {
-        const parsed: unknown = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const restored = parsed.filter((line): line is CartLine =>
-            Boolean(line) &&
-            typeof line.id === "string" &&
-            books.some((book) => book.id === line.id) &&
-            Number.isInteger(line.quantity) &&
-            line.quantity >= 1 &&
-            line.quantity <= 10
-          );
-          setCart(restored);
+    const restoreCart = () => {
+      try {
+        const saved = window.localStorage.getItem("b-stores-cart");
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            const restored = parsed.filter((line): line is CartLine =>
+              Boolean(line) &&
+              typeof line.id === "string" &&
+              books.some((book) => book.id === line.id) &&
+              Number.isInteger(line.quantity) &&
+              line.quantity >= 1 &&
+              line.quantity <= 10
+            );
+            setCart(restored);
+          }
         }
+      } catch {
+        try {
+          window.localStorage.removeItem("b-stores-cart");
+        } catch {
+          // Storage can be unavailable in private browsing modes.
+        }
+      } finally {
+        setCartReady(true);
       }
-    } catch {
-      window.localStorage.removeItem("b-stores-cart");
-    } finally {
-      setCartReady(true);
-    }
+    };
+
+    const frame = window.requestAnimationFrame(restoreCart);
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
-    if (cartReady) window.localStorage.setItem("b-stores-cart", JSON.stringify(cart));
-  }, [cart, cartReady]);
-
-  useEffect(() => {
-    if (session?.user) {
-      setCustomerName((current) => current || session.user.name || "");
-      setCustomerEmail((current) => current || session.user.email || "");
+    if (cartReady) {
+      try {
+        window.localStorage.setItem("b-stores-cart", JSON.stringify(cart));
+      } catch {
+        // Shopping still works when browser storage is unavailable.
+      }
     }
-  }, [session?.user?.name, session?.user?.email]);
+  }, [cart, cartReady]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -124,8 +132,8 @@ export function Storefront() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           items: cart.map((line) => ({ id: line.id, quantity: line.quantity })),
-          customer_name: customerName,
-          customer_email: customerEmail,
+          customer_name: customerName || session?.user?.name || "",
+          customer_email: customerEmail || session?.user?.email || "",
           client_order_id: reference
         })
       });
@@ -331,9 +339,9 @@ export function Storefront() {
                 <button type="button" className="back-to-bag" onClick={() => { setCheckoutMode(false); setCheckoutError(""); }}>← Back to your bag</button>
                 <div className="checkout-intro"><span>01</span><div><strong>Your details</strong><small>So your order has a name to go with it.</small></div></div>
                 <label htmlFor="customer-name">FULL NAME</label>
-                <input id="customer-name" required minLength={2} maxLength={120} autoComplete="name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Your full name" />
+                <input id="customer-name" required minLength={2} maxLength={120} autoComplete="name" value={customerName || session?.user?.name || ""} onChange={(event) => setCustomerName(event.target.value)} placeholder="Your full name" />
                 <label htmlFor="customer-email">EMAIL ADDRESS</label>
-                <input id="customer-email" required type="email" maxLength={254} autoComplete="email" value={customerEmail} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="you@example.com" />
+                <input id="customer-email" required type="email" maxLength={254} autoComplete="email" value={customerEmail || session?.user?.email || ""} onChange={(event) => setCustomerEmail(event.target.value)} placeholder="you@example.com" />
                 <div className="checkout-total"><span>Order total</span><strong>{formatPrice(subtotal)}</strong></div>
                 <div className="payment-note"><ShieldCheck size={17} /><span>You&apos;ll continue to PakPays&apos; secure hosted checkout to complete your payment in PKR.</span></div>
                 {checkoutError && <p className="checkout-error" role="alert">{checkoutError}</p>}
