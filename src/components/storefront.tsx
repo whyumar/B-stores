@@ -7,6 +7,8 @@ import {
   Search, ShieldCheck, ShoppingBag, Sparkles, X
 } from "lucide-react";
 import { books, formatPrice, type Book } from "@/lib/books";
+import { authClient } from "@/lib/auth-client";
+import { AuthControls } from "@/components/auth-controls";
 
 type CartLine = { id: string; quantity: number };
 
@@ -14,6 +16,8 @@ const categories = ["All books", ...Array.from(new Set(books.map((book) => book.
 
 export function Storefront() {
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [cartReady, setCartReady] = useState(false);
+  const { data: session } = authClient.useSession();
   const [cartOpen, setCartOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All books");
@@ -24,6 +28,41 @@ export function Storefront() {
   const [submitting, setSubmitting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("b-stores-cart");
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const restored = parsed.filter((line): line is CartLine =>
+            Boolean(line) &&
+            typeof line.id === "string" &&
+            books.some((book) => book.id === line.id) &&
+            Number.isInteger(line.quantity) &&
+            line.quantity >= 1 &&
+            line.quantity <= 10
+          );
+          setCart(restored);
+        }
+      }
+    } catch {
+      window.localStorage.removeItem("b-stores-cart");
+    } finally {
+      setCartReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (cartReady) window.localStorage.setItem("b-stores-cart", JSON.stringify(cart));
+  }, [cart, cartReady]);
+
+  useEffect(() => {
+    if (session?.user) {
+      setCustomerName((current) => current || session.user.name || "");
+      setCustomerEmail((current) => current || session.user.email || "");
+    }
+  }, [session?.user?.name, session?.user?.email]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -128,6 +167,7 @@ export function Storefront() {
             <input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Find a book..." aria-label="Search books" />
             <kbd>⌘ K</kbd>
           </label>
+          <AuthControls />
           <button type="button" className="icon-button cart-trigger" onClick={() => setCartOpen(true)} aria-label={"Open basket, " + itemCount + " items"}>
             <ShoppingBag size={19} /><span className="cart-count">{itemCount}</span>
           </button>
